@@ -59,6 +59,22 @@ repository. RFC 9750 explains why compatible MLS cryptography alone does not
 establish compatible Authentication Services, Delivery Services, identities,
 or application framing.
 
+Once two distinct implementation servers are running, use the pinned official
+runner rather than an AbsoluteJS-specific message exchange:
+
+```sh
+bun run certify:interop -- \
+  --client localhost:50051 \
+  --client localhost:50053 \
+  --config welcome_join
+```
+
+The command checks out the exact Working Group revision, runs its role-permuting
+gRPC test, and emits a JSON receipt with the harness revision and output digest.
+An endpoint tested against itself is rejected. A passing receipt is necessary
+for a `cross-implementation` claim, but does not by itself prove application,
+Authentication Service, or Delivery Service interoperability.
+
 ## Audit preparation
 
 An independent review should cover the provider wrapper, its exact engine and
