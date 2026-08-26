@@ -1,7 +1,12 @@
 import { checkMessagingProviderConformance } from "@absolutejs/e2ee/conformance";
+import { checkE2EECertification } from "@absolutejs/e2ee/certification";
 import type { AuthenticationService } from "@absolutejs/e2ee";
 import { expect, test } from "bun:test";
-import { createMlsMessagingProvider } from "../src";
+import {
+  createMlsMessagingProvider,
+  mlsProviderCertification,
+  mlsProviderManifest,
+} from "../src";
 
 test("satisfies the shared MLS provider manifest conformance", async () => {
   const authenticationService: AuthenticationService = {
@@ -34,4 +39,16 @@ test("satisfies the shared MLS provider manifest conformance", async () => {
   });
 
   expect(result).toMatchObject({ issues: [], passed: true });
+  expect(
+    checkE2EECertification(mlsProviderCertification, {
+      manifest: mlsProviderManifest,
+      maximumAgeMs: 31_536_000_000,
+      requiredClaims: [
+        "provider-conformance",
+        "known-answer-vectors",
+        "adversarial-lifecycle",
+      ],
+      runtime: "bun",
+    }).passed,
+  ).toBe(true);
 });

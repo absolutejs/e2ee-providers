@@ -62,3 +62,6 @@ conversation. Never relabel or wrap an existing strict conversation in place.
 ## License
 
 Apache-2.0
+The `./certification` export binds this exact release to its shared conformance,
+adversarial lifecycle suite, and a pinned MLS Working Group KeyPackage vector.
+It does not claim independent cross-implementation interoperability or an audit.

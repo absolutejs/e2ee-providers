@@ -18,5 +18,5 @@ export const mlsProviderManifest = defineE2EEProviderManifest({
     privateKeyProtection: "exportable",
     supportedModes: ["strict-e2ee", "managed-recovery"],
   },
-  version: "0.0.1",
+  version: "0.1.0",
 });

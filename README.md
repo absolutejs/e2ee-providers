@@ -18,6 +18,11 @@ merely because they share one selection API.
 Every provider publishes a machine-readable capability and assurance manifest and
 runs the shared `@absolutejs/e2ee/conformance` checks.
 
+Provider releases also export an exact-version certification report. Reports keep
+shared conformance, adversarial lifecycle coverage, official vectors, and true
+cross-implementation interoperability as separate claims. See
+[`CERTIFICATION.md`](./CERTIFICATION.md) for the threat model and audit boundary.
+
 ## Development
 
 ```bash

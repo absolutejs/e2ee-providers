@@ -15,3 +15,6 @@ See [SECURITY.md](./SECURITY.md) for limitations.
 ## License
 
 Apache-2.0
+The `./certification` export binds this exact release to its Bun conformance and
+adversarial envelope lifecycle suite. It does not claim official-vector,
+cross-implementation, browser-runtime, or independent-audit coverage.
