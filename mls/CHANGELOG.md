@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Declare compatibility with the `@absolutejs/e2ee` 0.6 independent-audit
+  evidence contract and recertify the exact provider release.
+
 ## 0.2.0
 
 - Harden the official MLS interoperability runner with exact implementation

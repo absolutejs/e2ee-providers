@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2
+
+- Declare compatibility with the `@absolutejs/e2ee` 0.6 independent-audit
+  evidence contract and bind Bun evidence to this exact package release.
+
 ## 0.2.1
 
 - Add a separately scoped Chromium certification report backed by executable

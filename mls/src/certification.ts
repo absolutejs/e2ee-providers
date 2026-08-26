@@ -56,7 +56,7 @@ const browserEvidenceStatement = JSON.stringify({
 
 export const mlsProviderCertification = defineE2EECertificationReport({
   claims,
-  completedAt: "2026-08-26T21:50:00.000Z",
+  completedAt: "2026-08-26T21:52:00.000Z",
   contract: 1,
   evidenceDigestSha256: bytesToHex(
     sha256(new TextEncoder().encode(evidenceStatement)),
@@ -80,7 +80,7 @@ export const mlsProviderCertification = defineE2EECertificationReport({
 
 export const mlsBrowserProviderCertification = defineE2EECertificationReport({
   claims: browserClaims,
-  completedAt: "2026-08-26T21:50:00.000Z",
+  completedAt: "2026-08-26T21:52:00.000Z",
   contract: 1,
   evidenceDigestSha256: bytesToHex(
     sha256(new TextEncoder().encode(browserEvidenceStatement)),
