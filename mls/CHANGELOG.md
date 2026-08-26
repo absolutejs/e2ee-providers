@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1
+
+- Add a separately scoped Chromium certification report backed by an executable
+  browser group-message and authenticated-context test.
+- Keep cross-implementation certification withheld until the stable engine can
+  run the MLS Working Group harness against another implementation.
+
 ## 0.1.0
 
 - Publish exact-release certification evidence with a pinned MLS Working Group
