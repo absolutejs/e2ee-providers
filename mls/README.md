@@ -1,7 +1,7 @@
 # `@absolutejs/e2ee-mls`
 
 Experimental RFC 9420 messaging provider for `@absolutejs/e2ee`, backed by the
-pure TypeScript `ts-mls` engine.
+pure TypeScript `ts-mls@2.0.0-rc.16` engine.
 
 This package exercises the complete AbsoluteJS messaging boundary with real MLS
 messages: per-device credentials, KeyPackages, Welcome messages, encrypted
@@ -71,6 +71,7 @@ target.
 
 The repository also contains a sanitized
 [upstream migration receipt](./evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json)
-showing `ts-mls@2.0.0-rc.16` and OpenMLS 0.9.0 passing the official
+showing this exact engine release and OpenMLS 0.9.0 passing the official
 role-permuting `welcome_join` matrix for ciphersuite 1. It is intentionally not
-part of this release's certification: the adapter still uses `ts-mls@1.6.2`.
+a `cross-implementation` claim for the adapter itself because the upstream
+engine server—not the AbsoluteJS adapter—participated in that run.

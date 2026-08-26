@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 - Harden the official MLS interoperability runner with exact implementation
   identities, self-reported-name checks, pinned compatible protobuf generators,
   explicit ciphersuite selection, and sanitized durable receipts.
+- Port the adapter and its encrypted state format to `ts-mls@2.0.0-rc.16`, the
+  first upstream release line with an official interoperability server.
 - Preserve a passing upstream `ts-mls@2.0.0-rc.16`/OpenMLS 0.9.0 migration
   receipt without extending the current adapter's certification claims.
 

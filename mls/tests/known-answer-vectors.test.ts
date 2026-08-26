@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { decodeMlsMessage, encodeMlsMessage } from "ts-mls";
+import { encode, mlsMessageDecoder, mlsMessageEncoder } from "ts-mls";
 import {
   MLS_MESSAGE_VECTOR_SHA256,
   MLS_WORKING_GROUP_VECTOR_REVISION,
@@ -11,11 +11,11 @@ const OFFICIAL_KEY_PACKAGE =
 
 test("round-trips the pinned MLS Working Group KeyPackage vector", () => {
   const bytes = Uint8Array.fromHex(OFFICIAL_KEY_PACKAGE);
-  const decoded = decodeMlsMessage(bytes, 0);
+  const decoded = mlsMessageDecoder(bytes, 0);
 
   expect(decoded).toBeDefined();
   expect(decoded?.[1]).toBe(bytes.length);
-  expect(encodeMlsMessage(decoded![0])).toEqual(bytes);
+  expect(encode(mlsMessageEncoder, decoded![0])).toEqual(bytes);
 });
 
 test("binds certification to the immutable official vector corpus", () => {

@@ -50,13 +50,13 @@ bundle target for evidence from an executed browser. Run `bun run
 certify:browser` to regenerate the executable browser evidence.
 
 The MLS provider deliberately does not claim level 4 or an independent audit.
-The stable `ts-mls@1.6.2` release predates its upstream interoperability server;
-compiling the later server against 1.6.2 fails because its API has changed. The
-upstream `ts-mls@2.0.0-rc.16` server passed the pinned runner's `welcome_join`
-suite-1 matrix against OpenMLS 0.9.0 on 2026-08-26. That result is preserved as
-an [upstream migration receipt](./mls/evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json),
-not as evidence for this adapter release. A future provider release may claim
-level 4 only after its exact engine and adapter release pass the same gate. The
+The current `ts-mls@2.0.0-rc.16` engine server passed the pinned runner's
+`welcome_join` suite-1 matrix against OpenMLS 0.9.0 on 2026-08-26. That result is
+preserved as an [upstream engine receipt](./mls/evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json),
+not as cross-implementation evidence for the AbsoluteJS adapter: the upstream
+engine server, rather than this adapter, participated in the run. A future
+provider release may claim level 4 only after its exact adapter release passes
+an adapter-bound gate. The
 pinned vector is from the Working Group's implementation coordination
 repository. RFC 9750 explains why compatible MLS cryptography alone does not
 establish compatible Authentication Services, Delivery Services, identities,

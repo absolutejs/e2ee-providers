@@ -17,32 +17,35 @@ import {
   type SecurityMode,
 } from "@absolutejs/e2ee";
 import {
+  clientStateDecoder,
+  clientStateEncoder,
+  contentTypes,
   createApplicationMessage,
   createCommit,
   createGroup,
-  decodeGroupState,
-  decodeMlsMessage,
+  defaultCredentialTypes,
   defaultCapabilities,
-  emptyPskIndex,
-  encodeGroupState,
-  encodeMlsMessage,
+  defaultProposalTypes,
+  encode,
   generateKeyPackageWithKey,
-  getCiphersuiteFromName,
   getCiphersuiteImpl,
   joinGroup,
+  mlsMessageDecoder,
+  mlsMessageEncoder,
+  nodeTypes,
   processMessage,
+  protocolVersions,
+  wireformats,
   zeroOutUint8Array,
   type ClientState,
   type CiphersuiteImpl,
   type Credential,
   type KeyPackage,
+  type MlsContext,
   type PrivateKeyPackage,
   type Proposal,
   type RatchetTree,
 } from "ts-mls";
-import { defaultClientConfig } from "ts-mls/clientConfig.js";
-import { unprotectPrivateMessage } from "ts-mls/messageProtection.js";
-import { decodeRatchetTree, encodeRatchetTree } from "ts-mls/ratchetTree.js";
 import {
   decodeContext,
   decodeCredential,
@@ -137,7 +140,10 @@ const credentialsEqual = (
   left.bytes.every((value, index) => value === right.bytes[index]);
 
 const credentialFromMls = (credential: Credential): DeviceCredential => {
-  if (credential.credentialType !== "basic") {
+  if (
+    credential.credentialType !== defaultCredentialTypes.basic ||
+    !("identity" in credential)
+  ) {
     throw new Error("Only MLS BasicCredential is supported.");
   }
   return decodeCredential(credential.identity);
@@ -148,7 +154,7 @@ const credentialAt = (
   leafIndex: number,
 ): DeviceCredential => {
   const node = tree[leafIndex * 2];
-  if (node?.nodeType !== "leaf") {
+  if (node?.nodeType !== nodeTypes.leaf) {
     throw new Error("MLS sender credential is unavailable.");
   }
   return credentialFromMls(node.leaf.credential);
@@ -157,7 +163,7 @@ const credentialAt = (
 const membersOf = (tree: RatchetTree): readonly ConversationMember[] =>
   Object.freeze(
     tree.flatMap((node, nodeIndex) =>
-      node?.nodeType === "leaf"
+      node?.nodeType === nodeTypes.leaf
         ? [
             Object.freeze({
               credential: cloneCredential(
@@ -230,13 +236,10 @@ export const createMlsMessagingProvider = async (
     throw new Error("maxPlaintextBytes must be a positive safe integer.");
   }
 
-  const ciphersuite: CiphersuiteImpl = await getCiphersuiteImpl(
-    getCiphersuiteFromName(CIPHERSUITE),
-  );
+  const ciphersuite: CiphersuiteImpl = await getCiphersuiteImpl(CIPHERSUITE);
   const signingKeys = new Map<string, SignatureKeyPair>();
   const keyPackages = new Map<string, KeyPackageMaterial>();
-  const clientConfig = {
-    ...defaultClientConfig,
+  const mlsContext: MlsContext = {
     authService: {
       validateCredential: async (
         credential: Credential,
@@ -258,7 +261,19 @@ export const createMlsMessagingProvider = async (
           return false;
         }
       },
+      validateSuccessorCredential: async (oldCredential, newCredential) => {
+        try {
+          const oldDevice = credentialFromMls(oldCredential);
+          const newDevice = credentialFromMls(newCredential);
+          validateDeviceCredential(oldDevice, now());
+          validateDeviceCredential(newDevice, now());
+          return credentialsEqual(oldDevice, newDevice);
+        } catch {
+          return false;
+        }
+      },
     },
+    cipherSuite: ciphersuite,
   };
 
   const createMaterial = async (
@@ -269,17 +284,19 @@ export const createMlsMessagingProvider = async (
     const keys = signingKeys.get(credential.keyHandle);
     if (keys === undefined)
       throw new Error("Device signing key is unavailable.");
-    const generated = await generateKeyPackageWithKey(
-      { credentialType: "basic", identity: encodeCredential(credential) },
-      defaultCapabilities(),
-      {
+    const generated = await generateKeyPackageWithKey({
+      capabilities: defaultCapabilities(),
+      cipherSuite: ciphersuite,
+      credential: {
+        credentialType: defaultCredentialTypes.basic,
+        identity: encodeCredential(credential),
+      },
+      lifetime: {
         notAfter: BigInt(Math.floor(expiresAt / 1_000)),
         notBefore: BigInt(Math.floor(now() / 1_000)),
       },
-      [],
-      keys,
-      ciphersuite,
-    );
+      signatureKeyPair: keys,
+    });
     return {
       privatePackage: generated.privatePackage,
       publicPackage: generated.publicPackage,
@@ -294,17 +311,16 @@ export const createMlsMessagingProvider = async (
     ): Promise<MembershipChange> => {
       if (internal.closed) throw new Error("MLS session is closed.");
       const authenticatedContext = contextFor(internal, purpose);
-      const result = await createCommit(
-        { cipherSuite: ciphersuite, state: internal.state },
-        {
-          authenticatedData: encodeContext(authenticatedContext),
-          extraProposals: [...proposals],
-          ratchetTreeExtension: true,
-        },
-      );
+      const result = await createCommit({
+        authenticatedData: encodeContext(authenticatedContext),
+        context: mlsContext,
+        extraProposals: [...proposals],
+        ratchetTreeExtension: true,
+        state: internal.state,
+      });
       internal.state = result.newState;
       zeroConsumed(result.consumed);
-      const encodedCommit = encodeMlsMessage(result.commit);
+      const encodedCommit = encode(mlsMessageEncoder, result.commit);
       const welcome = result.welcome;
       const welcomes =
         welcome === undefined
@@ -312,12 +328,8 @@ export const createMlsMessagingProvider = async (
           : welcomeTargets.map((target) => ({
               bytes: encodeWelcome({
                 keyPackageId: target.id,
-                ratchetTree: encodeRatchetTree(internal.state.ratchetTree),
-                welcome: encodeMlsMessage({
-                  version: "mls10",
-                  welcome,
-                  wireformat: "mls_welcome",
-                }),
+                ratchetTree: new Uint8Array(),
+                welcome: encode(mlsMessageEncoder, welcome),
               }),
               deviceId: target.credential.deviceId,
             }));
@@ -341,11 +353,11 @@ export const createMlsMessagingProvider = async (
             throw new Error("Unsupported key package protocol.");
           }
           const decoded = decodeExact(
-            decodeMlsMessage,
+            mlsMessageDecoder,
             keyPackage.bytes,
             "MLS KeyPackage",
           );
-          if (decoded.wireformat !== "mls_key_package") {
+          if (decoded.wireformat !== wireformats.mls_key_package) {
             throw new Error("Expected an MLS KeyPackage.");
           }
           const embedded = credentialFromMls(
@@ -356,7 +368,7 @@ export const createMlsMessagingProvider = async (
           }
           proposals.push({
             add: { keyPackage: decoded.keyPackage },
-            proposalType: "add",
+            proposalType: defaultProposalTypes.add,
           });
         }
         return commit(proposals, "membership.add", packages);
@@ -380,18 +392,18 @@ export const createMlsMessagingProvider = async (
           throw new Error("Unsupported protected-message protocol.");
         }
         const decoded = decodeExact(
-          decodeMlsMessage,
+          mlsMessageDecoder,
           message.bytes,
           "MLS message",
         );
         if (
-          decoded.wireformat !== "mls_private_message" &&
-          decoded.wireformat !== "mls_public_message"
+          decoded.wireformat !== wireformats.mls_private_message &&
+          decoded.wireformat !== wireformats.mls_public_message
         ) {
           throw new Error("Expected an MLS protected message.");
         }
         const wireContext = decodeContext(
-          decoded.wireformat === "mls_private_message"
+          decoded.wireformat === wireformats.mls_private_message
             ? decoded.privateMessage.authenticatedData
             : decoded.publicMessage.content.authenticatedData,
         );
@@ -403,7 +415,7 @@ export const createMlsMessagingProvider = async (
           throw new Error("Authenticated context has the wrong conversation.");
         }
         const messageEpoch =
-          decoded.wireformat === "mls_private_message"
+          decoded.wireformat === wireformats.mls_private_message
             ? decoded.privateMessage.epoch
             : decoded.publicMessage.content.epoch;
         if (wireContext.securityEpoch !== Number(messageEpoch)) {
@@ -411,33 +423,26 @@ export const createMlsMessagingProvider = async (
         }
 
         if (
-          decoded.wireformat === "mls_private_message" &&
-          decoded.privateMessage.contentType === "application"
+          decoded.wireformat === wireformats.mls_private_message &&
+          decoded.privateMessage.contentType === contentTypes.application
         ) {
           if (
             decoded.privateMessage.epoch !== internal.state.groupContext.epoch
           ) {
             throw new Error("Application message epoch is not current.");
           }
-          const result = await unprotectPrivateMessage(
-            internal.state.keySchedule.senderDataSecret,
-            decoded.privateMessage,
-            internal.state.secretTree,
-            internal.state.ratchetTree,
-            internal.state.groupContext,
-            internal.state.clientConfig.keyRetentionConfig,
-            ciphersuite,
-          );
-          if (
-            result.content.content.contentType !== "application" ||
-            result.content.content.sender.senderType !== "member"
-          ) {
+          const result = await processMessage({
+            context: mlsContext,
+            message: decoded,
+            state: internal.state,
+          });
+          if (result.kind !== "applicationMessage") {
             zeroConsumed(result.consumed);
             throw new Error("Expected an MLS member application message.");
           }
           const sender = credentialAt(
             internal.state.ratchetTree,
-            result.content.content.sender.leafIndex,
+            result.senderLeafIndex,
           );
           if (wireContext.senderId !== sender.deviceId) {
             zeroConsumed(result.consumed);
@@ -445,11 +450,11 @@ export const createMlsMessagingProvider = async (
               "Authenticated sender does not match MLS membership.",
             );
           }
-          internal.state = { ...internal.state, secretTree: result.tree };
+          internal.state = result.newState;
           zeroConsumed(result.consumed);
           const decrypted: DecryptedMessage = Object.freeze({
             authenticatedContext: wireContext,
-            plaintext: result.content.content.applicationData,
+            plaintext: result.message,
             senderCredential: sender.bytes,
           });
           return Object.freeze({
@@ -460,11 +465,8 @@ export const createMlsMessagingProvider = async (
 
         let membershipRejected = false;
         let senderLeafIndex: number | undefined;
-        const result = await processMessage(
-          decoded,
-          internal.state,
-          emptyPskIndex,
-          (incoming) => {
+        const result = await processMessage({
+          callback: (incoming) => {
             senderLeafIndex =
               incoming.kind === "commit"
                 ? incoming.senderLeafIndex
@@ -475,7 +477,9 @@ export const createMlsMessagingProvider = async (
                     ({ proposal }) => proposal.proposalType,
                   )
                 : [incoming.proposal.proposal.proposalType];
-            const sensitive = proposalTypes.filter((type) => type !== "update");
+            const sensitive = proposalTypes.filter(
+              (type) => type !== defaultProposalTypes.update,
+            );
             if (sensitive.length === 0) return "accept";
             if (senderLeafIndex === undefined) return "reject";
             const sender = credentialAt(
@@ -490,8 +494,10 @@ export const createMlsMessagingProvider = async (
             membershipRejected = allowed !== true;
             return membershipRejected ? "reject" : "accept";
           },
-          ciphersuite,
-        );
+          context: mlsContext,
+          message: decoded,
+          state: internal.state,
+        });
         if (membershipRejected) {
           zeroConsumed(result.consumed);
           throw new Error("MLS membership change was not authorized.");
@@ -510,13 +516,17 @@ export const createMlsMessagingProvider = async (
             "Authenticated sender does not match MLS membership.",
           );
         }
+        if (result.kind !== "newState") {
+          zeroConsumed(result.consumed);
+          throw new Error("Expected an MLS state change.");
+        }
         internal.state = result.newState;
         zeroConsumed(result.consumed);
         const processed: MessagingProcessResult = Object.freeze({
           epoch: Number(internal.state.groupContext.epoch),
           kind:
-            decoded.wireformat === "mls_public_message" ||
-            decoded.privateMessage.contentType === "commit"
+            decoded.wireformat === wireformats.mls_public_message ||
+            decoded.privateMessage.contentType === contentTypes.commit
               ? "membership-change"
               : "state-change",
         });
@@ -537,21 +547,17 @@ export const createMlsMessagingProvider = async (
             "Authenticated context is not bound to this session.",
           );
         }
-        const result = await createApplicationMessage(
-          internal.state,
-          plaintext,
-          ciphersuite,
-          encodeContext(authenticatedContext),
-        );
+        const result = await createApplicationMessage({
+          authenticatedData: encodeContext(authenticatedContext),
+          context: mlsContext,
+          message: plaintext,
+          state: internal.state,
+        });
         internal.state = result.newState;
         zeroConsumed(result.consumed);
         return Object.freeze({
           authenticatedContext,
-          bytes: encodeMlsMessage({
-            privateMessage: result.privateMessage,
-            version: "mls10",
-            wireformat: "mls_private_message",
-          }),
+          bytes: encode(mlsMessageEncoder, result.message),
           protocol: PROTOCOL,
         });
       },
@@ -569,7 +575,7 @@ export const createMlsMessagingProvider = async (
           );
           if (member === undefined) throw new Error("Member was not found.");
           return {
-            proposalType: "remove",
+            proposalType: defaultProposalTypes.remove,
             remove: { removed: member.index },
           };
         });
@@ -593,14 +599,13 @@ export const createMlsMessagingProvider = async (
         creatorCredential,
         now() + DEFAULT_KEY_PACKAGE_TTL_MS,
       );
-      const state = await createGroup(
-        encodeGroupId(conversationId, securityMode),
-        material.publicPackage,
-        material.privatePackage,
-        [],
-        ciphersuite,
-        clientConfig,
-      );
+      const state = await createGroup({
+        context: mlsContext,
+        extensions: [],
+        groupId: encodeGroupId(conversationId, securityMode),
+        keyPackage: material.publicPackage,
+        privateKeyPackage: material.privatePackage,
+      });
       return createSession({
         closed: false,
         credential: creatorCredential,
@@ -637,10 +642,10 @@ export const createMlsMessagingProvider = async (
       const id = randomId();
       keyPackages.set(id, material);
       return Object.freeze({
-        bytes: encodeMlsMessage({
+        bytes: encode(mlsMessageEncoder, {
           keyPackage: material.publicPackage,
-          version: "mls10",
-          wireformat: "mls_key_package",
+          version: protocolVersions.mls10,
+          wireformat: wireformats.mls_key_package,
         }),
         credential: cloneCredential(credential),
         expiresAt,
@@ -661,28 +666,19 @@ export const createMlsMessagingProvider = async (
         throw new Error("Welcome KeyPackage belongs to another device.");
       }
       const decodedWelcome = decodeExact(
-        decodeMlsMessage,
+        mlsMessageDecoder,
         decodedEnvelope.welcome,
         "MLS Welcome",
       );
-      if (decodedWelcome.wireformat !== "mls_welcome") {
+      if (decodedWelcome.wireformat !== wireformats.mls_welcome) {
         throw new Error("Expected an MLS Welcome.");
       }
-      const tree = decodeExact(
-        decodeRatchetTree,
-        decodedEnvelope.ratchetTree,
-        "MLS ratchet tree",
-      );
-      const state = await joinGroup(
-        decodedWelcome.welcome,
-        material.publicPackage,
-        material.privatePackage,
-        emptyPskIndex,
-        ciphersuite,
-        tree,
-        undefined,
-        clientConfig,
-      );
+      const state = await joinGroup({
+        context: mlsContext,
+        keyPackage: material.publicPackage,
+        privateKeys: material.privatePackage,
+        welcome: decodedWelcome.welcome,
+      });
       const boundGroup = decodeGroupId(state.groupContext.groupId);
       keyPackages.delete(decodedEnvelope.keyPackageId);
       return createSession({
@@ -698,7 +694,7 @@ export const createMlsMessagingProvider = async (
         await options.stateProtection.open({ sealedState }),
       );
       const state = decodeExact(
-        decodeGroupState,
+        clientStateDecoder,
         envelope.state,
         "MLS group state",
       );
@@ -712,7 +708,7 @@ export const createMlsMessagingProvider = async (
         closed: false,
         credential: envelope.credential,
         mode: envelope.mode,
-        state: { ...state, clientConfig },
+        state,
       });
     },
     sealConversationState: async (session) => {
@@ -721,7 +717,7 @@ export const createMlsMessagingProvider = async (
         state: encodeState({
           credential: internal.credential,
           mode: internal.mode,
-          state: encodeGroupState(internal.state),
+          state: encode(clientStateEncoder, internal.state),
         }),
       });
     },
