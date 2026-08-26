@@ -5,7 +5,7 @@
     "": {
       "name": "@absolutejs/e2ee-providers",
       "devDependencies": {
-        "@absolutejs/e2ee": "file:../e2ee",
+        "@absolutejs/e2ee": "0.1.0",
         "@absolutejs/manifest": "^0.9.0",
         "@sinclair/typebox": "^0.34.0",
         "@types/bun": "^1.3.14",
@@ -31,11 +31,8 @@
       },
     },
   },
-  "overrides": {
-    "@absolutejs/e2ee": "file:../e2ee",
-  },
   "packages": {
-    "@absolutejs/e2ee": ["@absolutejs/e2ee@file:../e2ee", { "dependencies": { "@absolutejs/manifest": "^0.9.0", "@sinclair/typebox": "^0.34.0" }, "devDependencies": { "@types/bun": "^1.3.14", "prettier": "^3.9.0", "typescript": "^5.9.0" } }],
+    "@absolutejs/e2ee": ["@absolutejs/e2ee@0.1.0", "", { "dependencies": { "@absolutejs/manifest": "^0.9.0", "@sinclair/typebox": "^0.34.0" } }, "sha512-8McPvyrZA++li1a8QXnpMdxi/uBIk31cdeaiVGNaxWLRy5bHC5ktLyJmPcktUjOwbiR10RKkC6/EiCg04mVDjw=="],
 
     "@absolutejs/e2ee-webcrypto": ["@absolutejs/e2ee-webcrypto@workspace:webcrypto"],
 
@@ -56,7 +53,5 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@8.3.0", "", {}, "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="],
-
-    "@absolutejs/e2ee-webcrypto/@absolutejs/e2ee": ["@absolutejs/e2ee@file:../e2ee", { "dependencies": { "@absolutejs/manifest": "^0.9.0", "@sinclair/typebox": "^0.34.0" }, "devDependencies": { "@types/bun": "^1.3.14", "prettier": "^3.9.0", "typescript": "^5.9.0" } }],
   }
 }
