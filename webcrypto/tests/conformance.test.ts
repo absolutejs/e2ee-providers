@@ -3,6 +3,7 @@ import { checkE2EEProviderConformance } from "@absolutejs/e2ee/conformance";
 import { checkE2EECertification } from "@absolutejs/e2ee/certification";
 import {
   createWebCryptoEnvelopeProvider,
+  webcryptoBrowserProviderCertification,
   webcryptoProviderCertification,
   webcryptoProviderManifest,
 } from "../src";
@@ -34,6 +35,14 @@ test("passes shared E2EE provider conformance", async () => {
       maximumAgeMs: 31_536_000_000,
       requiredClaims: ["provider-conformance", "adversarial-lifecycle"],
       runtime: "bun",
+    }).passed,
+  ).toBe(true);
+  expect(
+    checkE2EECertification(webcryptoBrowserProviderCertification, {
+      manifest: webcryptoProviderManifest,
+      maximumAgeMs: 31_536_000_000,
+      requiredClaims: ["provider-conformance", "adversarial-lifecycle"],
+      runtime: "browser",
     }).passed,
   ).toBe(true);
 });

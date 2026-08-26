@@ -65,3 +65,6 @@ Apache-2.0
 The `./certification` export binds this exact release to its shared conformance,
 adversarial lifecycle suite, and a pinned MLS Working Group KeyPackage vector.
 It does not claim independent cross-implementation interoperability or an audit.
+`mlsBrowserProviderCertification` is a separate Chromium report produced by
+`bun run certify:browser`; browser evidence is never inferred from the build
+target.

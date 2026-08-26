@@ -35,6 +35,23 @@ const evidenceStatement = JSON.stringify({
   vectorSha256: MLS_MESSAGE_VECTOR_SHA256,
 });
 
+const browserClaims: readonly E2EECertificationClaim[] = Object.freeze([
+  "adversarial-lifecycle",
+  "provider-conformance",
+  "runtime-browser",
+]);
+export const MLS_BROWSER_CERTIFICATION_SCENARIOS = Object.freeze([
+  "browser-encrypted-group-round-trip",
+  "browser-authenticated-context-substitution",
+] as const);
+const browserEvidenceStatement = JSON.stringify({
+  claims: browserClaims,
+  engine: "ts-mls@1.6.2",
+  provider: `${mlsProviderManifest.packageName}@${mlsProviderManifest.version}`,
+  scenarios: MLS_BROWSER_CERTIFICATION_SCENARIOS,
+  runtime: "chromium",
+});
+
 export const mlsProviderCertification = defineE2EECertificationReport({
   claims,
   completedAt: "2026-08-26T18:45:00.000Z",
@@ -57,4 +74,23 @@ export const mlsProviderCertification = defineE2EECertificationReport({
       sourceUrl: `https://raw.githubusercontent.com/mlswg/mls-implementations/${MLS_WORKING_GROUP_VECTOR_REVISION}/test-vectors/messages.json`,
     },
   ],
+});
+
+export const mlsBrowserProviderCertification = defineE2EECertificationReport({
+  claims: browserClaims,
+  completedAt: "2026-08-26T19:05:00.000Z",
+  contract: 1,
+  evidenceDigestSha256: bytesToHex(
+    sha256(new TextEncoder().encode(browserEvidenceStatement)),
+  ),
+  implementations: [{ name: "ts-mls", version: "1.6.2" }],
+  provider: {
+    id: mlsProviderManifest.id,
+    packageName: mlsProviderManifest.packageName,
+    version: mlsProviderManifest.version,
+  },
+  runtime: "browser",
+  scenarios: MLS_BROWSER_CERTIFICATION_SCENARIOS,
+  suite: "absolutejs-e2ee-certification/1",
+  vectors: [],
 });

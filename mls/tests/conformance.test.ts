@@ -4,6 +4,7 @@ import type { AuthenticationService } from "@absolutejs/e2ee";
 import { expect, test } from "bun:test";
 import {
   createMlsMessagingProvider,
+  mlsBrowserProviderCertification,
   mlsProviderCertification,
   mlsProviderManifest,
 } from "../src";
@@ -49,6 +50,14 @@ test("satisfies the shared MLS provider manifest conformance", async () => {
         "adversarial-lifecycle",
       ],
       runtime: "bun",
+    }).passed,
+  ).toBe(true);
+  expect(
+    checkE2EECertification(mlsBrowserProviderCertification, {
+      manifest: mlsProviderManifest,
+      maximumAgeMs: 31_536_000_000,
+      requiredClaims: ["provider-conformance", "adversarial-lifecycle"],
+      runtime: "browser",
     }).passed,
   ).toBe(true);
 });

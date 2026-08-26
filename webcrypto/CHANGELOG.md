@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Add a separately scoped Chromium certification report backed by executable
+  browser HPKE round-trip, context-substitution, tamper, and key-protection tests.
+
 ## 0.2.0
 
 - Publish exact-release Bun certification evidence for shared conformance and

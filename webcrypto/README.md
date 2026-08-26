@@ -16,5 +16,7 @@ See [SECURITY.md](./SECURITY.md) for limitations.
 
 Apache-2.0
 The `./certification` export binds this exact release to its Bun conformance and
-adversarial envelope lifecycle suite. It does not claim official-vector,
-cross-implementation, browser-runtime, or independent-audit coverage.
+adversarial envelope lifecycle suite. `webcryptoBrowserProviderCertification`
+separately records the Chromium round-trip and adversarial checks run by `bun
+run certify:browser`. Neither report claims official-vector,
+cross-implementation, or independent-audit coverage.
