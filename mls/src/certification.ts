@@ -11,7 +11,7 @@ export const MLS_WORKING_GROUP_VECTOR_REVISION =
 export const MLS_MESSAGE_VECTOR_SHA256 =
   "b194abe1561995223482dbad51c180146920dc2f637e74d01e07a388308791fb";
 export const MLS_ADAPTER_INTEROP_RECEIPT_SHA256 =
-  "f0b05778eba85cf9056316102e9d7dcc7f4b201f4d8b9ae7c8cadfb32a0af6a6";
+  "9dff8de14e42eb789420331ac57c067657a55fd204402c4df4bf2a987373917a";
 export const MLS_CERTIFICATION_SCENARIOS = Object.freeze([
   "manifest-conformance",
   "official-message-wire-vector",
@@ -20,6 +20,7 @@ export const MLS_CERTIFICATION_SCENARIOS = Object.freeze([
   "encrypted-state-tamper",
   "security-mode-binding",
   "membership-removal",
+  "membership-replacement",
   "openmls-external-keypackage-admission",
   "openmls-welcome-join",
   "openmls-bidirectional-application-message",
@@ -65,7 +66,7 @@ const browserEvidenceStatement = JSON.stringify({
 
 export const mlsProviderCertification = defineE2EECertificationReport({
   claims,
-  completedAt: "2026-08-26T22:30:52.410Z",
+  completedAt: "2026-08-26T23:44:54.765Z",
   contract: 1,
   evidenceDigestSha256: bytesToHex(
     sha256(new TextEncoder().encode(evidenceStatement)),
@@ -92,7 +93,7 @@ export const mlsProviderCertification = defineE2EECertificationReport({
 
 export const mlsBrowserProviderCertification = defineE2EECertificationReport({
   claims: browserClaims,
-  completedAt: "2026-08-26T22:31:00.000Z",
+  completedAt: "2026-08-26T23:45:11.000Z",
   contract: 1,
   evidenceDigestSha256: bytesToHex(
     sha256(new TextEncoder().encode(browserEvidenceStatement)),

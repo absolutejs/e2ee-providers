@@ -58,6 +58,9 @@ members. Authenticated message context must use the local device ID as
 
 Changing between `strict-e2ee` and `managed-recovery` requires a new
 conversation. Never relabel or wrap an existing strict conversation in place.
+For state-loss recovery, use a request-bound recovery grant and
+`replaceMembers()` to add the fresh device and remove the lost leaves in one
+epoch. Do not restore an old serialized MLS snapshot as a second live client.
 
 ## License
 
@@ -74,7 +77,7 @@ The repository contains a sanitized
 [upstream migration receipt](./evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json)
 showing this exact engine release and OpenMLS 0.9.0 passing the official
 role-permuting `welcome_join` matrix for ciphersuite 1. A separate
-[adapter-bound receipt](./evidence/absolutejs-e2ee-mls-0.4.0-openmls-0.9.0-application.json)
+[adapter-bound receipt](./evidence/absolutejs-e2ee-mls-0.5.0-openmls-0.9.0-application.json)
 shows this package creating the group, admitting OpenMLS's KeyPackage, delivering
 the Welcome, and authenticating application data in both directions. Receipts
 contain result metadata only; raw transcripts and test key material are not

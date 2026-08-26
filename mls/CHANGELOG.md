@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+- Add one-epoch member replacement, combining replacement-device admission and
+  lost-leaf removal in a single RFC 9420 Commit for managed recovery flows.
+- Require the request-bound recovery contracts in `@absolutejs/e2ee@0.8.x`.
+
 ## 0.4.0
 
 - Expose the security mode authenticated by MLS group state on every session.

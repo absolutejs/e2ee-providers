@@ -291,6 +291,58 @@ describe("MLS messaging provider", () => {
     ).rejects.toThrow();
   });
 
+  test("atomically replaces a lost member with a fresh device", async () => {
+    const surface = await setup("managed-recovery");
+    const replacementProvider = await createMlsMessagingProvider({
+      authenticationService: surface.authenticationService,
+      authorizeMembershipChange: () => true,
+      now: () => NOW,
+      stateProtection: surface.stateProtection,
+    });
+    const replacement = await replacementProvider.createDeviceCredential({
+      deviceId: "bob-replacement",
+      identityId: "bob",
+    });
+    const keyPackage = await replacementProvider.createKeyPackage({
+      credential: replacement,
+      expiresAt: NOW + 30_000,
+    });
+
+    const replaced = await surface.aliceSession.replaceMembers({
+      add: [keyPackage],
+      removeDeviceIds: ["bob-laptop"],
+    });
+    expect(replaced.epoch).toBe(2);
+    expect(replaced.handshake).toHaveLength(1);
+    expect(replaced.welcomes).toHaveLength(1);
+    expect(
+      (await surface.aliceSession.members()).map(
+        ({ credential }) => credential.deviceId,
+      ),
+    ).toEqual(["alice-phone", "bob-replacement"]);
+
+    const welcome = replaced.welcomes[0];
+    if (welcome === undefined) throw new Error("Expected replacement Welcome.");
+    const replacementSession = await replacementProvider.joinConversation({
+      credential: replacement,
+      expectedSecurityMode: "managed-recovery",
+      welcome: welcome.bytes,
+    });
+    expect(replacementSession.epoch).toBe(2);
+    const removedMemberMessage = await surface.bobSession.protect(
+      Uint8Array.of(1),
+      {
+        conversationId: "conversation-1",
+        purpose: "chat.message",
+        securityEpoch: 1,
+        senderId: "bob-laptop",
+      },
+    );
+    await expect(
+      surface.aliceSession.process(removedMemberMessage),
+    ).rejects.toThrow();
+  });
+
   test("fails closed when remote membership policy is absent", async () => {
     const surface = await setup("strict-e2ee", false);
     const removal = await surface.aliceSession.removeMembers(["bob-laptop"]);

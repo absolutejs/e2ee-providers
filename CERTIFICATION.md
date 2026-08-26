@@ -43,20 +43,20 @@ export remain application/deployment risks. They are not erased by MLS.
 5. `audited` remains a separate manifest assurance level and requires published
    independent audit material.
 
-The MLS provider currently reaches levels 1–3 for Bun and levels 1–2 in
+The MLS provider currently reaches levels 1–4 for Bun and levels 1–2 in
 Chromium. The WebCrypto provider reaches levels 1–2 in both Bun and Chromium.
 Browser reports are separate from Bun reports so a consumer cannot mistake a
 bundle target for evidence from an executed browser. Run `bun run
 certify:browser` to regenerate the executable browser evidence.
 
-The MLS provider deliberately does not claim level 4 or an independent audit.
+The MLS provider does not claim an independent audit.
 The current `ts-mls@2.0.0-rc.16` engine server passed the pinned runner's
 `welcome_join` suite-1 matrix against OpenMLS 0.9.0 on 2026-08-26. That result is
 preserved as an [upstream engine receipt](./mls/evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json),
-not as cross-implementation evidence for the AbsoluteJS adapter: the upstream
-engine server, rather than this adapter, participated in the run. A future
-provider release may claim level 4 only after its exact adapter release passes
-an adapter-bound gate. The
+not by itself as cross-implementation evidence for the AbsoluteJS adapter: the
+upstream engine server, rather than this adapter, participated in that run. The
+exact adapter release separately passes an adapter-bound bidirectional exchange
+with OpenMLS and publishes its sanitized receipt. The
 pinned vector is from the Working Group's implementation coordination
 repository. RFC 9750 explains why compatible MLS cryptography alone does not
 establish compatible Authentication Services, Delivery Services, identities,

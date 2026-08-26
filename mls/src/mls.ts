@@ -304,6 +304,59 @@ export const createMlsMessagingProvider = async (
   };
 
   const createSession = (internal: InternalSession): MlsSession => {
+    const additionsFor = (packages: readonly E2EEKeyPackage[]): Proposal[] => {
+      if (packages.length === 0) throw new Error("No members were supplied.");
+      const proposals: Proposal[] = [];
+      const deviceIds = new Set<string>();
+      for (const keyPackage of packages) {
+        validateKeyPackage(keyPackage, now());
+        if (keyPackage.protocol !== PROTOCOL) {
+          throw new Error("Unsupported key package protocol.");
+        }
+        if (deviceIds.has(keyPackage.credential.deviceId))
+          throw new Error("Duplicate member addition.");
+        deviceIds.add(keyPackage.credential.deviceId);
+        const decoded = decodeExact(
+          mlsMessageDecoder,
+          keyPackage.bytes,
+          "MLS KeyPackage",
+        );
+        if (decoded.wireformat !== wireformats.mls_key_package) {
+          throw new Error("Expected an MLS KeyPackage.");
+        }
+        const embedded = credentialFromMls(
+          decoded.keyPackage.leafNode.credential,
+        );
+        if (!credentialsEqual(embedded, keyPackage.credential)) {
+          throw new Error("Key package credential metadata does not match.");
+        }
+        proposals.push({
+          add: { keyPackage: decoded.keyPackage },
+          proposalType: defaultProposalTypes.add,
+        });
+      }
+      return proposals;
+    };
+
+    const removalsFor = (deviceIds: readonly string[]): Proposal[] => {
+      if (deviceIds.length === 0) throw new Error("No members were supplied.");
+      const members = membersOf(internal.state.ratchetTree);
+      const unique = new Set(deviceIds);
+      if (unique.size !== deviceIds.length) {
+        throw new Error("Duplicate member removal.");
+      }
+      return deviceIds.map((deviceId): Proposal => {
+        const member = members.find(
+          ({ credential }) => credential.deviceId === deviceId,
+        );
+        if (member === undefined) throw new Error("Member was not found.");
+        return {
+          proposalType: defaultProposalTypes.remove,
+          remove: { removed: member.index },
+        };
+      });
+    };
+
     const commit = async (
       proposals: readonly Proposal[],
       purpose: string,
@@ -345,33 +398,7 @@ export const createMlsMessagingProvider = async (
     const session: MlsSession = Object.freeze({
       [SESSION]: internal,
       addMembers: async (packages) => {
-        if (packages.length === 0) throw new Error("No members were supplied.");
-        const proposals: Proposal[] = [];
-        for (const keyPackage of packages) {
-          validateKeyPackage(keyPackage, now());
-          if (keyPackage.protocol !== PROTOCOL) {
-            throw new Error("Unsupported key package protocol.");
-          }
-          const decoded = decodeExact(
-            mlsMessageDecoder,
-            keyPackage.bytes,
-            "MLS KeyPackage",
-          );
-          if (decoded.wireformat !== wireformats.mls_key_package) {
-            throw new Error("Expected an MLS KeyPackage.");
-          }
-          const embedded = credentialFromMls(
-            decoded.keyPackage.leafNode.credential,
-          );
-          if (!credentialsEqual(embedded, keyPackage.credential)) {
-            throw new Error("Key package credential metadata does not match.");
-          }
-          proposals.push({
-            add: { keyPackage: decoded.keyPackage },
-            proposalType: defaultProposalTypes.add,
-          });
-        }
-        return commit(proposals, "membership.add", packages);
+        return commit(additionsFor(packages), "membership.add", packages);
       },
       close: async () => {
         if (internal.closed) return;
@@ -565,24 +592,26 @@ export const createMlsMessagingProvider = async (
         });
       },
       removeMembers: async (deviceIds) => {
-        if (deviceIds.length === 0)
-          throw new Error("No members were supplied.");
-        const members = membersOf(internal.state.ratchetTree);
-        const unique = new Set(deviceIds);
-        if (unique.size !== deviceIds.length) {
-          throw new Error("Duplicate member removal.");
-        }
-        const proposals = deviceIds.map((deviceId): Proposal => {
-          const member = members.find(
-            ({ credential }) => credential.deviceId === deviceId,
-          );
-          if (member === undefined) throw new Error("Member was not found.");
-          return {
-            proposalType: defaultProposalTypes.remove,
-            remove: { removed: member.index },
-          };
-        });
-        return commit(proposals, "membership.remove");
+        return commit(removalsFor(deviceIds), "membership.remove");
+      },
+      replaceMembers: async ({ add, removeDeviceIds }) => {
+        const added = new Set(add.map(({ credential }) => credential.deviceId));
+        if (added.size !== add.length)
+          throw new Error("Duplicate member addition.");
+        const current = membersOf(internal.state.ratchetTree);
+        for (const deviceId of added)
+          if (
+            current.some(
+              ({ credential }) => credential.deviceId === deviceId,
+            ) &&
+            !removeDeviceIds.includes(deviceId)
+          )
+            throw new Error("Replacement device is already a member.");
+        return commit(
+          [...additionsFor(add), ...removalsFor(removeDeviceIds)],
+          "membership.replace",
+          add,
+        );
       },
       selfUpdate: () => commit([], "membership.self-update"),
     });
