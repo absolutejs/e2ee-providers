@@ -9,6 +9,7 @@
   "scripts": {
     "build": "bun run --filter './*' build",
     "certify:browser": "bun run scripts/certify-browser.ts",
+    "certify:interop": "bun run scripts/certify-mls-interop.ts",
     "check:package": "bun run format:check && bun run typecheck && bun run test && bun run build && bun run --filter './*' verify-package",
     "format": "prettier --write \"./**/*.{ts,json,md}\"",
     "format:check": "prettier --check \"./**/*.{ts,json,md}\"",
