@@ -43,11 +43,21 @@ export remain application/deployment risks. They are not erased by MLS.
 5. `audited` remains a separate manifest assurance level and requires published
    independent audit material.
 
-The MLS provider currently reaches levels 1–3 for Bun. It deliberately does not
-claim level 4 or an independent audit. The pinned vector is from the MLS Working
-Group's implementation coordination repository. RFC 9750 explains why compatible
-MLS cryptography alone does not establish compatible Authentication Services,
-Delivery Services, identities, or application framing.
+The MLS provider currently reaches levels 1–3 for Bun and levels 1–2 in
+Chromium. The WebCrypto provider reaches levels 1–2 in both Bun and Chromium.
+Browser reports are separate from Bun reports so a consumer cannot mistake a
+bundle target for evidence from an executed browser. Run `bun run
+certify:browser` to regenerate the executable browser evidence.
+
+The MLS provider deliberately does not claim level 4 or an independent audit.
+The stable `ts-mls@1.6.2` release predates its upstream interoperability server;
+compiling the later server against 1.6.2 fails because its API has changed. A
+future provider release may claim level 4 only after its exact engine release
+passes the pinned MLS Working Group runner with a distinct implementation. The
+pinned vector is from the Working Group's implementation coordination
+repository. RFC 9750 explains why compatible MLS cryptography alone does not
+establish compatible Authentication Services, Delivery Services, identities,
+or application framing.
 
 ## Audit preparation
 
