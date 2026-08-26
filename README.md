@@ -12,6 +12,7 @@ merely because they share one selection API.
 
 | Package                                     | Role                                                            | Status       |
 | ------------------------------------------- | --------------------------------------------------------------- | ------------ |
+| [`@absolutejs/e2ee-mls`](./mls)             | RFC 9420 messaging using the pure TypeScript `ts-mls` engine    | Experimental |
 | [`@absolutejs/e2ee-webcrypto`](./webcrypto) | RFC 9180 single-recipient envelopes using WebCrypto-backed HPKE | Experimental |
 
 Every provider publishes a machine-readable capability and assurance manifest and

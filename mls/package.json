@@ -1,16 +1,16 @@
 {
-  "name": "@absolutejs/e2ee-webcrypto",
-  "version": "0.1.0",
-  "description": "Experimental RFC 9180 HPKE envelope provider for @absolutejs/e2ee using WebCrypto-backed primitives.",
+  "name": "@absolutejs/e2ee-mls",
+  "version": "0.0.1",
+  "description": "Experimental RFC 9420 MLS messaging provider for @absolutejs/e2ee.",
   "type": "module",
   "license": "Apache-2.0",
   "author": "Alex Kahn",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/absolutejs/e2ee-providers.git",
-    "directory": "webcrypto"
+    "directory": "mls"
   },
-  "homepage": "https://github.com/absolutejs/e2ee-providers/tree/main/webcrypto",
+  "homepage": "https://github.com/absolutejs/e2ee-providers/tree/main/mls",
   "bugs": {
     "url": "https://github.com/absolutejs/e2ee-providers/issues"
   },
@@ -37,6 +37,7 @@
   },
   "files": [
     "dist",
+    "CHANGELOG.md",
     "LICENSE",
     "README.md",
     "SECURITY.md"
@@ -45,18 +46,19 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rm -rf dist && bun build src/index.ts src/provider-manifest.ts src/manifest.ts --outdir dist --root src --sourcemap --target=browser --external @absolutejs/e2ee --external '@absolutejs/e2ee/*' --external @absolutejs/manifest --external @sinclair/typebox --external hpke && tsc --project tsconfig.build.json && absolute-manifest emit",
+    "build": "rm -rf dist && bun build src/index.ts src/provider-manifest.ts src/manifest.ts --outdir dist --root src --sourcemap --target=browser --external @absolutejs/e2ee --external '@absolutejs/e2ee/*' --external @absolutejs/manifest --external @sinclair/typebox --external ts-mls --external 'ts-mls/*' && tsc --project tsconfig.build.json && absolute-manifest emit",
+    "check:package": "bun run format && bun run typecheck && bun run test && bun run build && bun run verify-package",
     "format": "prettier --write \"./**/*.{ts,json,md}\"",
     "release": "bun run check:package && npm publish --access public",
     "test": "bun test tests/",
     "typecheck": "tsc --noEmit",
-    "verify-package": "absolute-manifest verify-package",
-    "check:package": "bun run format && bun run typecheck && bun run test && bun run build && bun run verify-package"
+    "verify-package": "absolute-manifest verify-package"
   },
   "dependencies": {
     "@absolutejs/manifest": "^0.9.0",
+    "@noble/hashes": "2.0.1",
     "@sinclair/typebox": "^0.34.0",
-    "hpke": "1.1.4"
+    "ts-mls": "1.6.2"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
@@ -64,7 +66,7 @@
     "typescript": "^5.9.0"
   },
   "peerDependencies": {
-    "@absolutejs/e2ee": ">=0.1.0 <0.5"
+    "@absolutejs/e2ee": ">=0.4.0 <0.5"
   },
   "absolutejs": {
     "manifestContract": 2
