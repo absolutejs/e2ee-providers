@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- Expose the security mode authenticated by MLS group state on every session.
+- Reject a Welcome before consuming its KeyPackage when its authenticated mode
+  differs from the caller's required mode.
+
 ## 0.3.0
 
 - Add adapter-bound interoperability evidence against OpenMLS 0.9.0 using the

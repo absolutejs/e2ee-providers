@@ -34,7 +34,7 @@ test("binds certification to immutable vector and interop evidence", async () =>
   ]);
   const receipt = await Bun.file(
     new URL(
-      "../evidence/absolutejs-e2ee-mls-0.3.0-openmls-0.9.0-application.json",
+      "../evidence/absolutejs-e2ee-mls-0.4.0-openmls-0.9.0-application.json",
       import.meta.url,
     ),
   ).bytes();

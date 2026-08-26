@@ -95,6 +95,7 @@ const run = async (): Promise<BrowserCertificationResult> => {
     if (welcome === undefined) throw new Error("Browser MLS Welcome missing.");
     const bobSession = await bobProvider.joinConversation({
       credential: bob,
+      expectedSecurityMode: "strict-e2ee",
       welcome: welcome.bytes,
     });
     const message = await aliceSession.protect(

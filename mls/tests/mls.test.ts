@@ -111,6 +111,7 @@ const setup = async (
   if (welcome === undefined) throw new Error("Expected Bob's Welcome.");
   const bobSession = await bobProvider.joinConversation({
     credential: bob,
+    expectedSecurityMode: mode,
     welcome: welcome.bytes,
   });
 
@@ -118,6 +119,7 @@ const setup = async (
     alice,
     aliceProvider,
     aliceSession,
+    authenticationService,
     bob,
     bobKeyPackage,
     bobProvider,
@@ -198,9 +200,44 @@ describe("MLS messaging provider", () => {
     await expect(
       surface.bobProvider.joinConversation({
         credential: surface.bob,
+        expectedSecurityMode: "strict-e2ee",
         welcome: welcome.bytes,
       }),
     ).rejects.toThrow("available KeyPackage");
+  });
+
+  test("rejects mode substitution without consuming the Welcome KeyPackage", async () => {
+    const surface = await setup("managed-recovery");
+    const charlieProvider = await createMlsMessagingProvider({
+      authenticationService: surface.authenticationService,
+      stateProtection: surface.stateProtection,
+    });
+    const charlie = await charlieProvider.createDeviceCredential({
+      deviceId: "charlie-tablet",
+      identityId: "charlie",
+    });
+    const keyPackage = await charlieProvider.createKeyPackage({
+      credential: charlie,
+      expiresAt: NOW + 30_000,
+    });
+    const membership = await surface.aliceSession.addMembers([keyPackage]);
+    const welcome = membership.welcomes[0];
+    if (welcome === undefined) throw new Error("Expected Charlie's Welcome.");
+
+    await expect(
+      charlieProvider.joinConversation({
+        credential: charlie,
+        expectedSecurityMode: "strict-e2ee",
+        welcome: welcome.bytes,
+      }),
+    ).rejects.toThrow("does not match expected mode");
+    const joined = await charlieProvider.joinConversation({
+      credential: charlie,
+      expectedSecurityMode: "managed-recovery",
+      welcome: welcome.bytes,
+    });
+    expect(joined.securityMode).toBe("managed-recovery");
+    await joined.close();
   });
 
   test("seals and restores evolving conversation state", async () => {

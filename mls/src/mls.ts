@@ -385,6 +385,9 @@ export const createMlsMessagingProvider = async (
       get epoch() {
         return Number(internal.state.groupContext.epoch);
       },
+      get securityMode() {
+        return decodeGroupId(internal.state.groupContext.groupId).mode;
+      },
       members: async () => membersOf(internal.state.ratchetTree),
       process: async (message) => {
         if (internal.closed) throw new Error("MLS session is closed.");
@@ -653,7 +656,7 @@ export const createMlsMessagingProvider = async (
         protocol: PROTOCOL,
       });
     },
-    joinConversation: async ({ credential, welcome }) => {
+    joinConversation: async ({ credential, expectedSecurityMode, welcome }) => {
       const decodedEnvelope = decodeWelcome(welcome);
       const material = keyPackages.get(decodedEnvelope.keyPackageId);
       if (material === undefined) {
@@ -680,6 +683,12 @@ export const createMlsMessagingProvider = async (
         welcome: decodedWelcome.welcome,
       });
       const boundGroup = decodeGroupId(state.groupContext.groupId);
+      if (boundGroup.mode !== expectedSecurityMode) {
+        zeroGraph(state);
+        throw new Error(
+          `Welcome security mode ${boundGroup.mode} does not match expected mode ${expectedSecurityMode}.`,
+        );
+      }
       keyPackages.delete(decodedEnvelope.keyPackageId);
       return createSession({
         closed: false,

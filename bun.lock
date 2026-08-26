@@ -5,7 +5,7 @@
     "": {
       "name": "@absolutejs/e2ee-providers",
       "devDependencies": {
-        "@absolutejs/e2ee": "0.6.0",
+        "@absolutejs/e2ee": "0.7.0",
         "@absolutejs/manifest": "^0.9.0",
         "@grpc/grpc-js": "1.14.4",
         "@grpc/proto-loader": "0.8.1",
@@ -18,7 +18,7 @@
     },
     "mls": {
       "name": "@absolutejs/e2ee-mls",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "dependencies": {
         "@absolutejs/manifest": "^0.9.0",
         "@noble/ciphers": "2.2.0",
@@ -32,12 +32,12 @@
         "typescript": "^5.9.0",
       },
       "peerDependencies": {
-        "@absolutejs/e2ee": ">=0.5.0 <0.7",
+        "@absolutejs/e2ee": ">=0.7.0 <0.8",
       },
     },
     "webcrypto": {
       "name": "@absolutejs/e2ee-webcrypto",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "dependencies": {
         "@absolutejs/manifest": "^0.9.0",
         "@noble/hashes": "2.0.1",
@@ -50,12 +50,12 @@
         "typescript": "^5.9.0",
       },
       "peerDependencies": {
-        "@absolutejs/e2ee": ">=0.5.0 <0.7",
+        "@absolutejs/e2ee": ">=0.5.0 <0.8",
       },
     },
   },
   "packages": {
-    "@absolutejs/e2ee": ["@absolutejs/e2ee@0.6.0", "", { "dependencies": { "@absolutejs/manifest": "^0.9.0", "@sinclair/typebox": "^0.34.0" } }, "sha512-Fi1/L6x7eS6ifPh21hf5Rc/WlEZA3TrdUtU0aTF/mhaeKeDheN6bfTVPs2TGMRiywwosr1N463FPCBEeLAGe6w=="],
+    "@absolutejs/e2ee": ["@absolutejs/e2ee@0.7.0", "", { "dependencies": { "@absolutejs/manifest": "^0.9.0", "@sinclair/typebox": "^0.34.0" } }, "sha512-tA4eALvLwwKxF9QVScWNqyDqeFbmwe7+xRF55w6zHSq4dO0EMYLHKF3WMFyk7MM7uUJ1FqW2aj9Ld/o/Y0LNYA=="],
 
     "@absolutejs/e2ee-mls": ["@absolutejs/e2ee-mls@workspace:mls"],
 

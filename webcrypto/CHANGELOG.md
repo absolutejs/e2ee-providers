@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3
+
+- Declare compatibility with the `@absolutejs/e2ee` 0.7 mode-bound messaging
+  contract; envelope behavior is unchanged.
+
 ## 0.2.2
 
 - Declare compatibility with the `@absolutejs/e2ee` 0.6 independent-audit

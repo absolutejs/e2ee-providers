@@ -28,7 +28,7 @@ const bunEvidenceStatement = JSON.stringify({
 
 export const webcryptoProviderCertification = defineE2EECertificationReport({
   claims: bunClaims,
-  completedAt: "2026-08-26T21:52:00.000Z",
+  completedAt: "2026-08-26T22:31:00.000Z",
   contract: 1,
   evidenceDigestSha256: bytesToHex(
     sha256(new TextEncoder().encode(bunEvidenceStatement)),
@@ -67,7 +67,7 @@ const browserEvidenceStatement = JSON.stringify({
 export const webcryptoBrowserProviderCertification =
   defineE2EECertificationReport({
     claims: browserClaims,
-    completedAt: "2026-08-26T21:52:00.000Z",
+    completedAt: "2026-08-26T22:31:00.000Z",
     contract: 1,
     evidenceDigestSha256: bytesToHex(
       sha256(new TextEncoder().encode(browserEvidenceStatement)),

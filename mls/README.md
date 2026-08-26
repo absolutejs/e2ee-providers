@@ -74,8 +74,12 @@ The repository contains a sanitized
 [upstream migration receipt](./evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json)
 showing this exact engine release and OpenMLS 0.9.0 passing the official
 role-permuting `welcome_join` matrix for ciphersuite 1. A separate
-[adapter-bound receipt](./evidence/absolutejs-e2ee-mls-0.3.0-openmls-0.9.0-application.json)
+[adapter-bound receipt](./evidence/absolutejs-e2ee-mls-0.4.0-openmls-0.9.0-application.json)
 shows this package creating the group, admitting OpenMLS's KeyPackage, delivering
 the Welcome, and authenticating application data in both directions. Receipts
 contain result metadata only; raw transcripts and test key material are not
 persisted.
+
+Every session exposes the security mode authenticated by MLS group state. Joining
+a Welcome requires the caller's expected mode and rejects a mismatch before the
+single-use KeyPackage is consumed.

@@ -18,7 +18,7 @@
     "typecheck": "bun run --filter './*' typecheck"
   },
   "devDependencies": {
-    "@absolutejs/e2ee": "0.6.0",
+    "@absolutejs/e2ee": "0.7.0",
     "@absolutejs/manifest": "^0.9.0",
     "@grpc/grpc-js": "1.14.4",
     "@grpc/proto-loader": "0.8.1",
