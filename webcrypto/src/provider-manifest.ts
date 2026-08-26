@@ -19,5 +19,5 @@ export const webcryptoProviderManifest = defineE2EEProviderManifest({
     privateKeyProtection: "non-exportable",
     supportedModes: ["strict-e2ee", "managed-recovery"],
   },
-  version: "0.1.0",
+  version: "0.1.1",
 });

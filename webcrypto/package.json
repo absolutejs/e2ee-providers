@@ -1,6 +1,6 @@
 {
   "name": "@absolutejs/e2ee-webcrypto",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Experimental RFC 9180 HPKE envelope provider for @absolutejs/e2ee using WebCrypto-backed primitives.",
   "type": "module",
   "license": "Apache-2.0",
@@ -37,6 +37,7 @@
   },
   "files": [
     "dist",
+    "CHANGELOG.md",
     "LICENSE",
     "README.md",
     "SECURITY.md"

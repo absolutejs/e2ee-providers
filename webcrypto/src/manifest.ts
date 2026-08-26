@@ -27,7 +27,7 @@ export const manifest = defineManifest<{
     peers: [
       {
         name: "@absolutejs/e2ee",
-        range: ">=0.1.0 <0.2",
+        range: ">=0.1.0 <0.5",
         reason: "provider contract",
       },
     ],
