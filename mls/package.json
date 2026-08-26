@@ -42,6 +42,7 @@
   },
   "files": [
     "dist",
+    "evidence",
     "CHANGELOG.md",
     "LICENSE",
     "README.md",
