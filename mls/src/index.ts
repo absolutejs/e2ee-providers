@@ -1,3 +1,4 @@
+export { mlsProviderCertification } from "./certification";
 export { createMlsMessagingProvider } from "./mls";
 export type {
   MlsMembershipAuthorization,

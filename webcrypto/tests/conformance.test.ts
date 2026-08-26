@@ -1,7 +1,9 @@
 import { expect, test } from "bun:test";
 import { checkE2EEProviderConformance } from "@absolutejs/e2ee/conformance";
+import { checkE2EECertification } from "@absolutejs/e2ee/certification";
 import {
   createWebCryptoEnvelopeProvider,
+  webcryptoProviderCertification,
   webcryptoProviderManifest,
 } from "../src";
 
@@ -26,4 +28,12 @@ test("passes shared E2EE provider conformance", async () => {
     manifest: webcryptoProviderManifest,
     passed: true,
   });
+  expect(
+    checkE2EECertification(webcryptoProviderCertification, {
+      manifest: webcryptoProviderManifest,
+      maximumAgeMs: 31_536_000_000,
+      requiredClaims: ["provider-conformance", "adversarial-lifecycle"],
+      runtime: "bun",
+    }).passed,
+  ).toBe(true);
 });
