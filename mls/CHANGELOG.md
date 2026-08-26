@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Harden the official MLS interoperability runner with exact implementation
+  identities, self-reported-name checks, pinned compatible protobuf generators,
+  explicit ciphersuite selection, and sanitized durable receipts.
+- Preserve a passing upstream `ts-mls@2.0.0-rc.16`/OpenMLS 0.9.0 migration
+  receipt without extending the current adapter's certification claims.
+
 ## 0.1.1
 
 - Add a separately scoped Chromium certification report backed by an executable

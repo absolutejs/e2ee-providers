@@ -1,0 +1,41 @@
+{
+  "assignments": 32,
+  "ciphersuites": [1],
+  "clients": [
+    {
+      "endpoint": "localhost:59117",
+      "implementation": {
+        "name": "OpenMLS",
+        "revision": "e725f587b107af303a7b1981fe160a91c0e44c70",
+        "version": "0.9.0"
+      }
+    },
+    {
+      "endpoint": "localhost:59119",
+      "implementation": {
+        "name": "ts-mls",
+        "revision": "e7faca69d64692e5f402acc76355ca6537cb7900",
+        "version": "2.0.0-rc.16"
+      }
+    }
+  ],
+  "completedAt": "2026-08-26T21:42:55.319Z",
+  "config": "welcome_join",
+  "configDigestSha256": "6cfa12e2b82fa7f420f388ef94fe7d466d1d46a63d3732e6be85353e31fc91cd",
+  "contract": 1,
+  "harness": {
+    "repository": "https://github.com/mlswg/mls-implementations.git",
+    "revision": "cfd450286d1bfd9cd2519b95c80f9771f94a5b1a",
+    "runnerImageDigest": "sha256:3dd4c54557d816ec117c37e0689fcd5ffbc8fa9cda9d6d03df97be27f35b9048"
+  },
+  "implementationNames": ["OpenMLS", "ts-mls"],
+  "outputDigestSha256": "e008bb318cc1fd35cae7205f878234f7edcc11d2ded74763db06d1b78e69f703",
+  "passed": true,
+  "scenarios": [
+    "no_path_secret",
+    "with_external_tree",
+    "with_path_secret",
+    "with_psk"
+  ],
+  "suite": 1
+}

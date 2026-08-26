@@ -51,9 +51,12 @@ certify:browser` to regenerate the executable browser evidence.
 
 The MLS provider deliberately does not claim level 4 or an independent audit.
 The stable `ts-mls@1.6.2` release predates its upstream interoperability server;
-compiling the later server against 1.6.2 fails because its API has changed. A
-future provider release may claim level 4 only after its exact engine release
-passes the pinned MLS Working Group runner with a distinct implementation. The
+compiling the later server against 1.6.2 fails because its API has changed. The
+upstream `ts-mls@2.0.0-rc.16` server passed the pinned runner's `welcome_join`
+suite-1 matrix against OpenMLS 0.9.0 on 2026-08-26. That result is preserved as
+an [upstream migration receipt](./mls/evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json),
+not as evidence for this adapter release. A future provider release may claim
+level 4 only after its exact engine and adapter release pass the same gate. The
 pinned vector is from the Working Group's implementation coordination
 repository. RFC 9750 explains why compatible MLS cryptography alone does not
 establish compatible Authentication Services, Delivery Services, identities,
@@ -65,15 +68,25 @@ runner rather than an AbsoluteJS-specific message exchange:
 ```sh
 bun run certify:interop -- \
   --client localhost:50051 \
+  --implementation OpenMLS@VERSION#40_HEX_REVISION \
   --client localhost:50053 \
-  --config welcome_join
+  --implementation ts-mls@VERSION#40_HEX_REVISION \
+  --config welcome_join \
+  --suite 1 \
+  --output receipt.json
 ```
 
-The command checks out the exact Working Group revision, runs its role-permuting
-gRPC test, and emits a JSON receipt with the harness revision and output digest.
-An endpoint tested against itself is rejected. A passing receipt is necessary
-for a `cross-implementation` claim, but does not by itself prove application,
-Authentication Service, or Delivery Service interoperability.
+The command checks out the exact Working Group revision, builds its runner with
+pinned compatible protobuf generators, runs the role-permuting gRPC test, and
+emits a JSON receipt with implementation revisions, configuration and output
+digests, scenarios, assignments, and the runner image digest. It rejects the
+same endpoint or implementation name twice and checks declared names against
+the servers' gRPC `Name` responses. Raw transcripts are neither printed nor
+persisted because they contain test private keys. Source revisions remain
+operator declarations and must be independently reproduced during audit. A
+passing receipt is necessary for a `cross-implementation` claim, but does not by
+itself prove application, Authentication Service, or Delivery Service
+interoperability.
 
 ## Audit preparation
 

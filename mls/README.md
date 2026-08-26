@@ -68,3 +68,9 @@ It does not claim independent cross-implementation interoperability or an audit.
 `mlsBrowserProviderCertification` is a separate Chromium report produced by
 `bun run certify:browser`; browser evidence is never inferred from the build
 target.
+
+The repository also contains a sanitized
+[upstream migration receipt](./evidence/upstream-ts-mls-2.0.0-rc.16-openmls-0.9.0-welcome-join.json)
+showing `ts-mls@2.0.0-rc.16` and OpenMLS 0.9.0 passing the official
+role-permuting `welcome_join` matrix for ciphersuite 1. It is intentionally not
+part of this release's certification: the adapter still uses `ts-mls@1.6.2`.

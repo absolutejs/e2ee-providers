@@ -22,6 +22,8 @@ Provider releases also export an exact-version certification report. Reports kee
 shared conformance, adversarial lifecycle coverage, official vectors, and true
 cross-implementation interoperability as separate claims. See
 [`CERTIFICATION.md`](./CERTIFICATION.md) for the threat model and audit boundary.
+Interoperability receipts are sanitized summaries; raw Working Group transcripts
+are not retained because they contain ephemeral private key material.
 
 ## Development
 
