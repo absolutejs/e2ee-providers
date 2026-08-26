@@ -1,0 +1,24 @@
+{
+  "adapter": { "packageName": "@absolutejs/e2ee-mls", "version": "0.3.0" },
+  "ciphersuite": 1,
+  "completedAt": "2026-08-26T22:09:12.811Z",
+  "contract": 1,
+  "directions": ["absolutejs-to-openmls", "openmls-to-absolutejs"],
+  "harness": {
+    "repository": "https://github.com/mlswg/mls-implementations.git",
+    "revision": "cfd450286d1bfd9cd2519b95c80f9771f94a5b1a"
+  },
+  "implementation": {
+    "name": "OpenMLS",
+    "revision": "e725f587b107af303a7b1981fe160a91c0e44c70",
+    "version": "0.9.0"
+  },
+  "passed": true,
+  "scenarios": [
+    "adapter-created-group",
+    "external-keypackage-admission",
+    "welcome-join",
+    "bidirectional-application-message",
+    "authenticated-context-round-trip"
+  ]
+}

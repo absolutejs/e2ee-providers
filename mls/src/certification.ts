@@ -10,6 +10,8 @@ export const MLS_WORKING_GROUP_VECTOR_REVISION =
   "cfd450286d1bfd9cd2519b95c80f9771f94a5b1a";
 export const MLS_MESSAGE_VECTOR_SHA256 =
   "b194abe1561995223482dbad51c180146920dc2f637e74d01e07a388308791fb";
+export const MLS_ADAPTER_INTEROP_RECEIPT_SHA256 =
+  "acf0ff3c60be1b5ecccb41013977a104d463b9a639fa461ee3ac6977cb0043ce";
 export const MLS_CERTIFICATION_SCENARIOS = Object.freeze([
   "manifest-conformance",
   "official-message-wire-vector",
@@ -18,10 +20,15 @@ export const MLS_CERTIFICATION_SCENARIOS = Object.freeze([
   "encrypted-state-tamper",
   "security-mode-binding",
   "membership-removal",
+  "openmls-external-keypackage-admission",
+  "openmls-welcome-join",
+  "openmls-bidirectional-application-message",
+  "openmls-authenticated-context-round-trip",
 ] as const);
 
 const claims: readonly E2EECertificationClaim[] = Object.freeze([
   "adversarial-lifecycle",
+  "cross-implementation",
   "known-answer-vectors",
   "provider-conformance",
   "runtime-bun",
@@ -30,6 +37,8 @@ const evidenceStatement = JSON.stringify({
   claims,
   engine: "ts-mls@2.0.0-rc.16",
   engineRevision: "e7faca69d64692e5f402acc76355ca6537cb7900",
+  interopReceiptSha256: MLS_ADAPTER_INTEROP_RECEIPT_SHA256,
+  interopRevision: "e725f587b107af303a7b1981fe160a91c0e44c70",
   provider: `${mlsProviderManifest.packageName}@${mlsProviderManifest.version}`,
   scenarios: MLS_CERTIFICATION_SCENARIOS,
   vectorRevision: MLS_WORKING_GROUP_VECTOR_REVISION,
@@ -56,12 +65,15 @@ const browserEvidenceStatement = JSON.stringify({
 
 export const mlsProviderCertification = defineE2EECertificationReport({
   claims,
-  completedAt: "2026-08-26T21:52:00.000Z",
+  completedAt: "2026-08-26T22:09:12.811Z",
   contract: 1,
   evidenceDigestSha256: bytesToHex(
     sha256(new TextEncoder().encode(evidenceStatement)),
   ),
-  implementations: [{ name: "ts-mls", version: "2.0.0-rc.16" }],
+  implementations: [
+    { name: "ts-mls", version: "2.0.0-rc.16" },
+    { name: "OpenMLS", version: "0.9.0" },
+  ],
   provider: {
     id: mlsProviderManifest.id,
     packageName: mlsProviderManifest.packageName,

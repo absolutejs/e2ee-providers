@@ -9,6 +9,7 @@
   "scripts": {
     "build": "bun run --filter './*' build",
     "certify:browser": "bun run scripts/certify-browser.ts",
+    "certify:adapter-interop": "bun run scripts/certify-mls-adapter-interop.ts",
     "certify:interop": "bun run scripts/certify-mls-interop.ts",
     "check:package": "bun run format:check && bun run typecheck && bun run test && bun run build && bun run --filter './*' verify-package",
     "format": "prettier --write \"./**/*.{ts,json,md}\"",
@@ -19,6 +20,8 @@
   "devDependencies": {
     "@absolutejs/e2ee": "0.6.0",
     "@absolutejs/manifest": "^0.9.0",
+    "@grpc/grpc-js": "1.14.4",
+    "@grpc/proto-loader": "0.8.1",
     "@sinclair/typebox": "^0.34.0",
     "@types/bun": "^1.3.14",
     "playwright": "1.60.0",

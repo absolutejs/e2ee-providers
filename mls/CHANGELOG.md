@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Add adapter-bound interoperability evidence against OpenMLS 0.9.0 using the
+  pinned MLS Working Group gRPC contract.
+- Certify external KeyPackage admission, Welcome processing, and authenticated
+  application messages in both directions without retaining secret transcripts.
+
 ## 0.2.1
 
 - Declare compatibility with the `@absolutejs/e2ee` 0.6 independent-audit

@@ -1,6 +1,6 @@
 {
   "name": "@absolutejs/e2ee-mls",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Experimental RFC 9420 MLS messaging provider for @absolutejs/e2ee.",
   "type": "module",
   "license": "Apache-2.0",

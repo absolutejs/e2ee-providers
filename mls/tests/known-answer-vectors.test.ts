@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { encode, mlsMessageDecoder, mlsMessageEncoder } from "ts-mls";
 import {
+  MLS_ADAPTER_INTEROP_RECEIPT_SHA256,
   MLS_MESSAGE_VECTOR_SHA256,
   MLS_WORKING_GROUP_VECTOR_REVISION,
   mlsProviderCertification,
@@ -18,7 +19,7 @@ test("round-trips the pinned MLS Working Group KeyPackage vector", () => {
   expect(encode(mlsMessageEncoder, decoded![0])).toEqual(bytes);
 });
 
-test("binds certification to the immutable official vector corpus", () => {
+test("binds certification to immutable vector and interop evidence", async () => {
   expect(mlsProviderCertification.claims).toContain("known-answer-vectors");
   expect(mlsProviderCertification.vectors).toEqual([
     {
@@ -26,5 +27,18 @@ test("binds certification to the immutable official vector corpus", () => {
       sourceUrl: `https://raw.githubusercontent.com/mlswg/mls-implementations/${MLS_WORKING_GROUP_VECTOR_REVISION}/test-vectors/messages.json`,
     },
   ]);
-  expect(mlsProviderCertification.claims).not.toContain("cross-implementation");
+  expect(mlsProviderCertification.claims).toContain("cross-implementation");
+  expect(mlsProviderCertification.implementations).toEqual([
+    { name: "ts-mls", version: "2.0.0-rc.16" },
+    { name: "OpenMLS", version: "0.9.0" },
+  ]);
+  const receipt = await Bun.file(
+    new URL(
+      "../evidence/absolutejs-e2ee-mls-0.3.0-openmls-0.9.0-application.json",
+      import.meta.url,
+    ),
+  ).bytes();
+  expect(new Bun.CryptoHasher("sha256").update(receipt).digest("hex")).toBe(
+    MLS_ADAPTER_INTEROP_RECEIPT_SHA256,
+  );
 });
